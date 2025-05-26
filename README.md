@@ -18,7 +18,7 @@
   - システムツール: `xclip`, `xdotool`, `wmctrl`, `fzf`, `libnotify`（`notify-send`用）, `xdg-utils`, `bat`（プレビュー用、オプション）
   - Python仮想環境（デフォルト：`~/uv/lopo-env`）
 - **ブラウザ**: Firefox、Chrome、Chromium、Brave、Operaに対応。
-- **非対応環境**: 現在、Windows環境では動作しません（`xclip`, `xdotool`, `wmctrl`などがLinux依存のため）。Windowsへの移植は大歓迎です！
+- **非対応環境**: 現在、Windows環境では動作しません（`xclip`, `xdotool`, `wmctrl`などがLinux依存のため）。
 
 ## インストール
 1. **リポジトリをクローン**:
