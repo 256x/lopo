@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Load environment variables from ~/.config/lopo/.env if it exists
+ENV_FILE="$HOME/.config/lopo/.env"
+if [ -f "$ENV_FILE" ]; then
+    source "$ENV_FILE"
+fi
+
 VENV_DIR="${LOPO_VENV:-$HOME/uv/lopo-env}"
 LOGFILE="${LOPO_LAUNCHER_LOG:-$HOME/.cache/lopo/lopo-launcher.log}"
 mkdir -p "$(dirname "$LOGFILE")"

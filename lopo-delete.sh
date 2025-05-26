@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Load environment variables from ~/.config/lopo/.env if it exists
+ENV_FILE="$HOME/.config/lopo/.env"
+if [ -f "$ENV_FILE" ]; then
+    source "$ENV_FILE"
+fi
+
 LOPO_DIR="${LOPO_DIR:-$HOME/Documents/lopo}"
 
 if [[ ! -d "$LOPO_DIR" ]]; then

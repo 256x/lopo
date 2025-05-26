@@ -14,7 +14,7 @@
 - **OS**: Linux（i3-wmで開発・テスト済みだが、他のウィンドウマネージャやデスクトップ環境でも動作可能）。
 - **依存パッケージ**:
   - Python 3（`lopo-add.py`用）
-  - Pythonライブラリ: `requests`, `beautifulsoup4`, `readability-lxml`
+  - Pythonライブラリ: `requests`, `beautifulsoup4`, `readability-lxml`, `charset-normalizer`
   - システムツール: `xclip`, `xdotool`, `wmctrl`, `fzf`, `libnotify`（`notify-send`用）, `xdg-utils`, `bat`（プレビュー用、オプション）
   - Python仮想環境（デフォルト：`~/uv/lopo-env`）
 - **ブラウザ**: Firefox、Chrome、Chromium、Brave、Operaに対応。
@@ -27,17 +27,31 @@
    cd lopo
    ```
 
-2. **仮想環境のセットアップ**:
+2. **環境変数の設定（オプション）**:
+   環境変数をカスタマイズする場合、`.env`ファイルを`~/.config/lopo/.env`に配置します。サンプル：
+   ```bash
+   mkdir -p ~/.config/lopo
+   cat << EOF > ~/.config/lopo/.env
+   # lopo environment variables
+   LOPO_DIR=~/Documents/lopo
+   LOPO_VENV=~/uv/lopo-env
+   LOPO_LAUNCHER_LOG=~/.cache/lopo/lopo-launcher.log
+   LOPO_DEBUG_LOG=/tmp/lopo-debug.log
+   EOF
+   ```
+   スクリプトは自動で`~/.config/lopo/.env`を読み込みます。カスタムパスを使用する場合は、このファイルを編集してください。
+
+3. **仮想環境のセットアップ**:
    Python仮想環境を作成し、依存パッケージをインストール:
    ```bash
    mkdir -p ~/uv/lopo-env
    python3 -m venv ~/uv/lopo-env
    source ~/uv/lopo-env/bin/activate
-   pip install requests beautifulsoup4 readability-lxml
+   pip install requests beautifulsoup4 readability-lxml charset-normalizer
    deactivate
    ```
 
-3. **システム依存パッケージのインストール**:
+4. **システム依存パッケージのインストール**:
    - **Arch Linux**の場合:
      ```bash
      sudo pacman -S xclip xdotool wmctrl fzf libnotify xdg-utils
@@ -56,7 +70,7 @@
      sudo apt install bat
      ```
 
-4. **スクリプトの配置**:
+5. **スクリプトの配置**:
    スクリプトを`~/.local/bin`にコピーして実行権限を付与:
    ```bash
    mkdir -p ~/.local/bin
@@ -64,7 +78,7 @@
    chmod +x ~/.local/bin/lopo-*.{py,sh}
    ```
 
-5. **ホットキーの設定（例：i3-wm）**:
+6. **ホットキーの設定（例：i3-wm）**:
    ホットキーを設定可能なウィンドウマネージャやデスクトップ環境で、`lopo-launcher.sh`を呼び出すように設定します。以下はi3-wmの設定ファイル（例：`~/.config/i3/config`）に`Shift+Mod+p`（Modは通常Super/Winキー）を割り当てる例:
    ```bash
    bindsym $mod+Shift+p exec --no-startup-id ~/.local/bin/lopo-launcher.sh
@@ -96,32 +110,6 @@
   ```bash
   ~/.local/bin/lopo-delete.sh
   ```
-  - `$LOPO_DIR`内の`.md`ファイルを`fzf`で複数選択可能。
-  - 選択したファイルを削除（確認プロンプトあり）。
-  - 成功または失敗の通知を表示。
+  - `$LOPO_DIR`内のJonah
 
-## 注意事項
-- **カスタマイズ**:
-  - このスクリプトはLinux環境（開発環境：i3-wm、仮想環境：`~/uv/lopo-env`, 保存先：`~/Documents/lopo`）向けに作られています。以下の環境変数でパスを上書き可能です：
-    - `LOPO_DIR`: 保存ディレクトリ（デフォルト：`~/Documents/lopo`）
-    - `LOPO_VENV`: 仮想環境ディレクトリ（デフォルト：`~/uv/lopo-env`）
-    - `LOPO_LAUNCHER_LOG`: ランチャーログ（デフォルト：`~/.cache/lopo/lopo-launcher.log`）
-    - `LOPO_DEBUG_LOG`: デバッグログ（デフォルト：`/tmp/lopo-debug.log`）
-    - 例: `~/.bashrc`に以下を追加してカスタマイズ:
-      ```bash
-      export LOPO_DIR=~/mydocs/lopo
-      export LOPO_VENV=~/myvenv/lopo-env
-      export LOPO_LAUNCHER_LOG=~/logs/lopo-launcher.log
-      export LOPO_DEBUG_LOG=~/logs/lopo-debug.log
-      ```
-  - 他のカスタマイズ：
-    - ブラウザのクラス名（`lopo-launcher.sh`の`get_browser_url`関数）
-    - ホットキー（ウィンドウマネージャやデスクトップ環境の設定）
-- **依存ツールの確認**: 必要なツール（`xclip`, `xdotool`, `wmctrl`, `fzf`, `libnotify`, `xdg-utils`）がインストールされていることを確認してください。
-- **ログファイル**: `$LOPO_DEBUG_LOG`と`$LOPO_LAUNCHER_LOG`にログが記録されます。問題発生時はこれらを確認してください。
-- **ブラウザ互換性**: 一部のブラウザや環境ではURL取得が失敗する場合があります。その場合、クリップボードからURLを取得するフォールバックが動作します。
-- **Windows環境**: 現在、Windowsでは`xclip`, `xdotool`, `wmctrl`などの依存関係により動作しません。Windows向けの代替実装（例：PowerShellやWSL2での対応）の貢献を歓迎します。
-- **セキュリティ**: 保存されるウェブページの内容に機密情報が含まれないよう注意してください。公開リポジトリにアップロードする場合は、保存ディレクトリ（`$LOPO_DIR`）に個人情報が含まれていないことを確認してください。
-
-## ライセンス
-MITライセンス
+System: * Today's date and time is 11:05 AM JST on Monday, May 26, 2025.
