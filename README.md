@@ -1,6 +1,6 @@
 # lopo - ウェブページ保存・管理スクリプト
 
-`lopo`は、Pocketのサービス終了をきっかけに、ウェブページを素早く保存・管理するための代替ツールとして開発されたスクリプト群です。Linux環境向けに設計されており、ホットキーを設定可能なウィンドウマネージャやデスクトップ環境で、ブラウザのウェブページのURLと内容をMarkdownファイルとして保存します。
+`lopo`は、Pocketのサービス終了をきっかけに、ウェブページを素早く保存・管理するための代替ツールとして開発されたスクリプト群です。Linux環境向けに設計されており、ホットキーを設定可能なウィンドウマネージャやデスクトップ環境（例：i3-wm）で、ブラウザのウェブページのURLと内容をMarkdownファイルとして保存します。
 
 ## 機能
 - **ウェブページ保存**: `lopo-add.py`がクリップボードまたはブラウザから取得したURLのウェブページをフェッチし、`readability`と`BeautifulSoup`でタイトルと本文を抽出し、Markdownファイルとして保存。
@@ -110,6 +110,40 @@
   ```bash
   ~/.local/bin/lopo-delete.sh
   ```
-  - `$LOPO_DIR`内のJonah
+  - `$LOPO_DIR`内の`.md`ファイルを`fzf`で複数選択可能。
+  - 選択したファイルを削除（確認プロンプトあり）。
+  - 成功または失敗の通知を表示。
 
-System: * Today's date and time is 11:05 AM JST on Monday, May 26, 2025.
+## 注意事項
+- **カスタマイズ**:
+  - このスクリプトはLinux環境（開発環境：i3-wm、仮想環境：`~/uv/lopo-env`, 保存先：`~/Documents/lopo`）向けに作られています。以下の環境変数でパスを上書き可能です：
+    - `LOPO_DIR`: 保存ディレクトリ（デフォルト：`~/Documents/lopo`）
+    - `LOPO_VENV`: 仮想環境ディレクトリ（デフォルト：`~/uv/lopo-env`）
+    - `LOPO_LAUNCHER_LOG`: ランチャーログ（デフォルト：`~/.cache/lopo/lopo-launcher.log`）
+    - `LOPO_DEBUG_LOG`: デバッグログ（デフォルト：`/tmp/lopo-debug.log`）
+    - 例: `~/.bashrc`に以下を追加してカスタマイズ:
+      ```bash
+      export LOPO_DIR=~/mydocs/lopo
+      export LOPO_VENV=~/myvenv/lopo-env
+      export LOPO_LAUNCHER_LOG=~/logs/lopo-launcher.log
+      export LOPO_DEBUG_LOG=~/logs/lopo-debug.log
+      ```
+  - 他のカスタマイズ：
+    - ブラウザのクラス名（`lopo-launcher.sh`の`get_browser_url`関数）
+    - ホットキー（ウィンドウマネージャやデスクトップ環境の設定）
+- **文字エンコーディング**:
+  - 日本語のウェブページ（例：Shift-JISやEUC-JPを使用するサイト）で保存に失敗する場合、`$LOPO_DEBUG_LOG`を確認してください。検出されたエンコーディングやエラー情報が記録されています。
+  - 問題が続く場合、依存パッケージを最新バージョンに更新してください:
+    ```bash
+    source ~/uv/lopo-env/bin/activate
+    pip install --upgrade requests beautifulsoup4 readability-lxml charset-normalizer
+    deactivate
+    ```
+- **依存ツールの確認**: 必要なツール（`xclip`, `xdotool`, `wmctrl`, `fzf`, `libnotify`, `xdg-utils`）がインストールされていることを確認してください。
+- **ログファイル**: `$LOPO_DEBUG_LOG`と`$LOPO_LAUNCHER_LOG`にログが記録されます。保存に失敗した場合は`$LOPO_DEBUG_LOG`を確認してください（例：`cat /tmp/lopo-debug.log`）。
+- **ブラウザ互換性**: 一部のブラウザや環境ではURL取得が失敗する場合があります。その場合、クリップボードからURLを取得するフォールバックが動作します。
+- **Windows環境**: 現在、Windowsでは`xclip`, `xdotool`, `wmctrl`などの依存関係により動作しません。Windows向けの代替実装（例：PowerShellやWSL2での対応）の貢献を歓迎します。
+- **セキュリティ**: 保存されるウェブページの内容に機密情報が含まれないよう注意してください。公開リポジトリにアップロードする場合は、保存ディレクトリ（`$LOPO_DIR`）に個人情報が含まれていないことを確認してください。
+
+## ライセンス
+MITライセンス
