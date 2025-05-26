@@ -9,7 +9,8 @@ import requests
 from bs4 import BeautifulSoup
 from readability import Document
 
-LOGFILE = "/tmp/lopo-debug.log"
+LOGFILE = os.getenv("LOPO_DEBUG_LOG", "/tmp/lopo-debug.log")
+BASE_DIR = os.getenv("LOPO_DIR", os.path.expanduser("~/Documents/lopo"))
 
 def log(msg):
     timestamp = datetime.datetime.now().isoformat()
@@ -66,11 +67,8 @@ def extract_content(html):
 
 def save_text(title, text):
     now = datetime.datetime.now()
-    base_dir = os.path.expanduser("~/Documents/lopo")
-    # フォルダは年/月で作る
-    dir_path = os.path.join(base_dir, now.strftime("%Y"), now.strftime("%m"))
+    dir_path = os.path.join(BASE_DIR, now.strftime("%Y"), now.strftime("%m"))
     os.makedirs(dir_path, exist_ok=True)
-    # ファイル名は年月日_時分秒_タイトル.md（タイトルはファイル名として使いやすく一部置換）
     safe_title = "".join(c if c.isalnum() or c in " -_." else "_" for c in title)[:50]
     filename = now.strftime(f"%Y-%m-%d_%H%M%S_{safe_title}.md")
     filepath = os.path.join(dir_path, filename)
@@ -87,7 +85,6 @@ def save_text(title, text):
         return False
 
 def main():
-    # コマンドライン引数のURLがあれば使う、なければクリップボードを使う
     if len(sys.argv) > 1:
         url = sys.argv[1]
         log(f"URL from argument: {url}")
@@ -113,4 +110,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

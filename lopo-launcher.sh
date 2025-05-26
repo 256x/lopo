@@ -1,18 +1,13 @@
 #!/bin/bash
 
-# 仮想環境のディレクトリ（修正済み）
-VENV_DIR="$HOME/uv/lopo-env"
-
-# ログファイル
-LOGFILE="$HOME/.cache/lopo/lopo-launcher.log"
+VENV_DIR="${LOPO_VENV:-$HOME/uv/lopo-env}"
+LOGFILE="${LOPO_LAUNCHER_LOG:-$HOME/.cache/lopo/lopo-launcher.log}"
 mkdir -p "$(dirname "$LOGFILE")"
 
-# ログ出力関数
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') $*" >> "$LOGFILE"
 }
 
-# 一時的にブラウザウィンドウからURLを取得してクリップボードにコピー
 get_browser_url() {
     BROWSER_WINDOW=$(xdotool search --onlyvisible --class "firefox|chrome|chromium|brave|opera" | head -1)
 
@@ -43,7 +38,6 @@ get_browser_url() {
     fi
 }
 
-# URL取得処理
 if get_browser_url; then
     URL=$(xclip -o -selection clipboard)
 else
@@ -53,10 +47,8 @@ else
     log "Clipboard URL fallback: $URL"
 fi
 
-# 仮想環境を有効化
 source "$VENV_DIR/bin/activate"
 
-# lopo-add.py を実行（URLを明示渡し）
 if python ~/.local/bin/lopo-add.py "$URL"; then
     notify-send "lopo" "Saved URL from browser clipboard."
     log "Saved successfully: $URL"
@@ -65,6 +57,4 @@ else
     log "Error during saving: $URL"
 fi
 
-# 仮想環境を無効化
 deactivate
-
